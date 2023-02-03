@@ -55,8 +55,6 @@ exports.register = async (req, res) => {
 /// login a user
 exports.login = async (req, res) => {
   try {
-    // our login logic starts here
-    console.log(req.body);
     //Get user input
     const { email, password } = req.body;
     //validate user input

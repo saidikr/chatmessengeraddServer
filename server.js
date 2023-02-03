@@ -11,6 +11,7 @@ require("dotenv").config();
 //app config
 const app=express();
 const port=process.env.PORT || 9000
+const connection_url=process.env.CONNECTION_URL
 const pusher = new Pusher({
   appId: "1543844",
   key: "eb05ff1342e028941747",
@@ -32,7 +33,7 @@ app.use(cors())
 
 
 //DB config
-const connection_url='mongodb+srv://said:said.123456789s@cluster0.kqi7njd.mongodb.net/chatappDB?retryWrites=true&w=majority';
+
 mongoose.connect(connection_url, {
     useNewUrlParser: true,
     useUnifiedTopology:true,
@@ -42,18 +43,16 @@ const db=mongoose.connection;
 
 db.once("open", function() {
         console.log("DB Connected");
-    const msgCollection=db.collection("messagecontents");
+    const msgCollection=db.collection("messages");
     const changeStream=msgCollection.watch();
     changeStream.on('change',(change)=>{
-        console.log(change);
         if(change.operationType==='insert'){
             const messageDetails=change.fullDocument;
             pusher.trigger('message','inserted',{
                 _id:messageDetails._id,
                 message:messageDetails.message,
-                name:messageDetails.name,
-                timestamp:messageDetails.timestamp,
-                received: messageDetails.received,
+                groupId:messageDetails.groupId,
+                userId:messageDetails.userId,
                 time:messageDetails.time,
                 __v:messageDetails.__v
             });
